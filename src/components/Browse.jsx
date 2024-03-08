@@ -1,14 +1,19 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Header from './Header'
+import MainContainer from './MainContainer'
+import SecondaryContainer from './SecondaryContainer'
+
 
 const Browse = () => {
+
+
+
   return (
 
-    <div>
-      <Header/>
-        
-        <h1>Iam going</h1>
-        
+    <div className=''>
+      <Header />
+      <MainContainer/>
+      <SecondaryContainer/>
     </div>
 
   )

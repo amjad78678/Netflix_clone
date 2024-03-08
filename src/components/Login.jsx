@@ -1,12 +1,15 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import Header from './Header'
 import { checkValidData } from '../utils/validate'
 import { auth } from '../utils/firebase';
 import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../App';
+
 
 const Login = () => {
 
+  const {user,setUser}=useContext(UserContext)
   const [isSignIn, setIsSignIn] = useState(true)
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
@@ -15,6 +18,8 @@ const Login = () => {
   const emailRef = useRef(null)
   const passwordRef = useRef(null)
   const nameRef = useRef(null)
+
+
 
  const navigate=useNavigate()
 
@@ -33,12 +38,7 @@ const Login = () => {
 
     }
 
-
-
- 
-
-    if (errorMessage === null) {
-
+    if (errorMessage === undefined) {
 
       if (!isSignIn) {
         //signUp logic
@@ -48,18 +48,29 @@ const Login = () => {
           createUserWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value)
             .then((userCredential) => {
               const user = userCredential.user;
-              emailRef.current.value = '';
-              passwordRef.current.value = '';
-              nameRef.current.value = '';
-              setSuccessMessage('Successfully registered your mail')
 
+              console.log('iam created user',user)
 
+              
+
+              console.log(nameRef.current.value)
               // Update the user's profile with the username
               updateProfile(auth.currentUser, {
                 displayName: nameRef.current.value, photoURL: "https://example.com/jane-q-user/profile.jpg"
               }).then(() => {
                
-               navigate('/browse');
+                
+                  auth.currentUser.reload().then(() => {
+
+
+                }).catch((error) => {
+                  console.error("Error reloading user profile:", error);
+                });
+
+               setSuccessMessage('Successfully registered your mail')
+                emailRef.current.value = '';
+                passwordRef.current.value = '';
+                nameRef.current.value = '';
 
               }).catch((error) => {
                 // An error occurred
@@ -73,13 +84,8 @@ const Login = () => {
               setErrorMessage(errorCode+'-'+errorMessage)
   
             });
-
-         
-
         }
-
-
-
+           
       } else {
         //Signin Logic
 
@@ -89,7 +95,9 @@ const Login = () => {
                 .then((userCredential) => {
                   // Signed in 
                   const user = userCredential.user;
-           
+
+                  setUser(user)           
+                  localStorage.setItem('user', JSON.stringify(user));
                   //now logged in now need to go to browse url
                   navigate('/browse')
                   
