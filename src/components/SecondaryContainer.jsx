@@ -30,7 +30,7 @@ const SecondaryContainer = () => {
       console.log('iam axios',response.data.results)
       setTopRated(response.data.results)
     })
-    axios.get('https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1', API_OPTIONS).then((response) => {
+    axios.get('https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=2', API_OPTIONS).then((response) => {
 
       console.log('iam axios',response.data.results)
       setUpcoming(response.data.results)
