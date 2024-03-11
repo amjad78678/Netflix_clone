@@ -3,8 +3,9 @@ import Header from './Header'
 import { checkValidData } from '../utils/validate'
 import { auth } from '../utils/firebase';
 import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../App';
+import { toast } from 'react-toastify';
 
 
 const Login = () => {
@@ -27,66 +28,18 @@ const Login = () => {
 
   const handleButtonClick = () => {
 
+
     //need validate form data
 
-    if(!isSignIn){
-      const message = checkValidData(emailRef.current.value, passwordRef.current.value, nameRef.current.value)
-      setErrorMessage(message)
-    }else{
-      const message = checkValidData(emailRef.current.value, passwordRef.current.value)
-      setErrorMessage(message)
-
-    }
-
-    if (errorMessage === undefined) {
-
-      if (!isSignIn) {
-        //signUp logic
-
-        if (nameRef.current.value.trim() !== '') {
-
-          createUserWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value)
-            .then((userCredential) => {
-              const user = userCredential.user;
-
-              console.log('iam created user',user)
-
-              
-
-              console.log(nameRef.current.value)
-              // Update the user's profile with the username
-              updateProfile(auth.currentUser, {
-                displayName: nameRef.current.value, photoURL: "https://example.com/jane-q-user/profile.jpg"
-              }).then(() => {
-               
-                
-                  auth.currentUser.reload().then(() => {
-
-
-                }).catch((error) => {
-                  console.error("Error reloading user profile:", error);
-                });
-
-               setSuccessMessage('Successfully registered your mail')
-                emailRef.current.value = '';
-                passwordRef.current.value = '';
-                nameRef.current.value = '';
-
-              }).catch((error) => {
-                // An error occurred
-                console.error(error);
-              });
-            })
-            .catch((error) => {
-              const errorCode = error.code;
-              const errorMessage = error.message;
-              
-              setErrorMessage(errorCode+'-'+errorMessage)
+   
   
-            });
-        }
-           
-      } else {
+      const message = checkValidData(emailRef.current.value, passwordRef.current.value)
+      toast.error(message)
+
+    
+
+    if (message === null) {
+
         //Signin Logic
 
         if(emailRef.current.value.trim()!==''){
@@ -95,9 +48,7 @@ const Login = () => {
                 .then((userCredential) => {
                   // Signed in 
                   const user = userCredential.user;
-
-                  setUser(user)           
-                  localStorage.setItem('user', JSON.stringify(user));
+                  console.log('loginedUser',user)    
                   //now logged in now need to go to browse url
                   navigate('/browse')
                   
@@ -105,13 +56,12 @@ const Login = () => {
                 .catch((error) => {
                   const errorCode = error.code;
                   const errorMessage = error.message;
-      
-                  setErrorMessage(errorCode + '-' + errorMessage)
+                  toast.error(errorMessage)
                 });
         }
 
 
-      }
+      
 
     }
 
@@ -139,14 +89,11 @@ const Login = () => {
           <input type="text" ref={emailRef} placeholder='Email Address' className='p-2 mb-5  w-9/12 bg-gray-600 rounded-sm' />
           <input type="password" ref={passwordRef} placeholder='Password' className='p-2 w-9/12 bg-gray-600 rounded-sm' />
 
-          <p className='text-red-500 font-semibold  mt-4'>{errorMessage}</p>
-          <p className='text-green-500 font-semibold  mt-4'>{successMessage}</p>   
-
 
           <button onClick={handleButtonClick} className='p-4 mt-6 bg-red-700 w-9/12 rounded-lg font-semibold'>{isSignIn ? 'Sign In' : 'Sign Up'}</button>
 
 
-          <p className='py-12'><span className='text-gray-500'>{isSignIn ? 'New to Netflix?' : 'Already registered?'}</span><span className='cursor-pointer' onClick={() => setIsSignIn(!isSignIn)}>{isSignIn ? 'Sign Up Now' : 'Sign In Now'}</span> </p>
+          <p className='py-12'><span className='text-gray-500'>New to Netflix?</span><span className='cursor-pointer'><Link to={'/signup'}>Sign Up Now</Link></span> </p>
         </div>
 
       </form>
